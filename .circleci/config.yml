@@ -14,29 +14,34 @@ jobs:
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/postgres:9.4
 
-    working_directory: ~/repo
+    working_directory: ~/ContactGestures
 
     environment:
       # Customize the JVM maximum heap limit
-      JVM_OPTS: -Xmx3200m
-      TERM: dumb
+      JVM_OPTS: -Xmx1536m
 
-    steps:
-      - checkout
+      steps:
+        - checkout
+        - run: ls
+        # Try to restore cache
+        - restore_cache:
+            key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+        # Download and cache dependencies
+        - run:
+            name: Download Dependencies
+            command: ./gradlew androidDependencies
+        # Save to the cache so next build is faster
+        - save_cache:
+            paths:
+              - ~/.gradle
+            key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
 
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "build.gradle" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+        # run tests!
+        - run:
+            name: Run Tests
+            command: ./gradlew lint test
 
-      - run: gradle dependencies
-
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: v1-dependencies-{{ checksum "build.gradle" }}
-
-      # run tests!
-      - run: gradle test
+        # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
+        - store_artifacts:
+            path: app/build/reports
+            destination: reports
