@@ -29,9 +29,9 @@ import java.io.FileOutputStream
 import java.util.jar.Manifest
 
 
-class MainActivity : AppCompatActivity(), GestureOverlayView.OnGestureListener {
+class MainActivity : AppCompatActivity(){
 
-    private val gestureOverlay by lazy { gesture_overlay }
+//    private val gestureOverlay by lazy { gesture_overlay }
     private lateinit var gestureLibrary: GestureLibrary
     private var gesture: Gesture? = null
 
@@ -44,83 +44,21 @@ class MainActivity : AppCompatActivity(), GestureOverlayView.OnGestureListener {
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
 
-        //Check permissions
-        val permission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        if(permission != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this,
-                arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE),
-                1)
-        }
-
-        gestureLibrary = GestureLibraries.fromFile("/sdcard/gestures.txt")
-        if(!gestureLibrary.load()) {
-            finish()
-        }
-        gestureOverlay.gestureStrokeType = GestureOverlayView.GESTURE_STROKE_TYPE_MULTIPLE
-        gestureOverlay.addOnGestureListener(this)
-        gestureOverlay.addOnGesturePerformedListener { overlay, gesture ->
-            val predictions = gestureLibrary.recognize(gesture)
-            val topPrediction = predictions.maxBy { it.score }
-            topPrediction?.let {
-                Toast.makeText(this, topPrediction.name, Toast.LENGTH_LONG).show()
-            }
-        }
+//        gestureLibrary = GestureLibraries.fromFile("/sdcard/gestures.txt")
+//        if(!gestureLibrary.load()) {
+//            finish()
+//        }
+//        gestureOverlay.gestureStrokeType = GestureOverlayView.GESTURE_STROKE_TYPE_MULTIPLE
+//        gestureOverlay.addOnGestureListener(this)
+//        gestureOverlay.addOnGesturePerformedListener { overlay, gesture ->
+//            val predictions = gestureLibrary.recognize(gesture)
+//            val topPrediction = predictions.maxBy { it.score }
+//            topPrediction?.let {
+//                Toast.makeText(this, topPrediction.name, Toast.LENGTH_LONG).show()
+//            }
+//        }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.save_menu, menu)
-        return true
-    }
-
-    override fun onGestureStarted(overlay: GestureOverlayView?, event: MotionEvent?) {
-        Log.d("Gesture", "started")
-    }
-
-    override fun onGestureCancelled(overlay: GestureOverlayView?, event: MotionEvent?) {
-        Log.d("Gesture", "cancelled")
-    }
-
-    override fun onGesture(overlay: GestureOverlayView?, event: MotionEvent?) {
-        Log.d("Gesture", "")
-        gesture = overlay?.gesture
-    }
-
-    override fun onGestureEnded(overlay: GestureOverlayView?, event: MotionEvent?) {
-        Log.d("Gesture", "ended")
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if(item?.itemId == R.id.save_gesture){
-            try {
-                var selectedName: String? = null
-
-                SaveDialogFragment(object : SaveDialogListener {
-                    override fun onSaveDialogFinished(fileName: String?) {
-                        fileName?.let {
-
-                            gestureLibrary.addGesture(it, gesture)
-                            if(!gestureLibrary.save()) {
-                                Toast.makeText(applicationContext, "Failed to Save Gesture", Toast.LENGTH_LONG).show()
-                            } else {
-
-                                Toast.makeText(
-                                    applicationContext,
-                                    "Gesture Saved $it",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                        }
-                    }
-                }).show(supportFragmentManager, "saveDialog")
-
-            } catch (e: Exception) {
-                Log.v("Signature Gestures", e.message)
-                e.printStackTrace()
-            }
-
-        }
-        return super.onOptionsItemSelected(item)
-    }
 }
 
 interface SaveDialogListener {
