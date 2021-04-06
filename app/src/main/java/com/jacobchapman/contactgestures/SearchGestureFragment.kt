@@ -105,7 +105,7 @@ class SearchGestureFragment  : Fragment(), OnContactClickedListener {
         clearSearchFab.setOnClickListener {
             searchString = ""
             contactsAdapter.contacts.clear()
-            contactsAdapter.notifyDataSetChanged()G
+            contactsAdapter.notifyDataSetChanged()
         }
     }
 
